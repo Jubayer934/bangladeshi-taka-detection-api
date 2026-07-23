@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taka Note Detector AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bd-green: #006a4e;
+            --bd-red: #f42a41;
+            --light-gray: #f4f4f9;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-gray);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        header {
+            background-color: var(--bd-green);
+            color: white;
+            width: 100%;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            margin-top: -30px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+        h1 { margin: 0; font-size: 1.8rem; }
+        p { color: #666; margin-bottom: 2rem; }
+        
+        .upload-section {
+            border: 2px dashed var(--bd-green);
+            padding: 2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+        }
+        .upload-section:hover { background-color: #e6f0ed; }
+        
+        #fileInput { display: none; }
+        
+        .btn {
+            background-color: var(--bd-red);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1.5rem;
+            width: 100%;
+            font-weight: 600;
+        }
+        .btn:disabled { background-color: #ccc; }
+        
+        #result {
+            margin-top: 2rem;
+            display: none;
+        }
+        .result-img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            border: 3px solid var(--bd-green);
+        }
+        .loading { display: none; color: var(--bd-green); font-weight: 600; margin-top: 1rem; }
+        
+        footer { margin-top: auto; padding: 2rem; color: #888; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🇧🇩 Taka Note Detector AI</h1>
+</header>
+
+<div class="container">
+    <p>Upload a Bangladeshi Taka note to identify its denomination.</p>
+    
+    <div class="upload-section" onclick="document.getElementById('fileInput').click()">
+        <span id="fileName">Click to upload image</span>
+        <input type="file" id="fileInput" accept="image/*">
+    </div>
+
+    <button class="btn" id="uploadBtn">Analyze Note</button>
+    
+    <div class="loading" id="loading">Processing AI Models...</div>
+
+    <div id="result">
+        <h3>Detection Result:</h3>
+        <img id="outputImage" class="result-img" src="" alt="Result">
+        <pre id="jsonOutput" style="text-align: left; background: #eee; padding: 10px; font-size: 0.8rem; border-radius: 5px; overflow-x: auto;"></pre>
+    </div>
+</div>
+
+<footer>
+    Powered by YOLOv11 & FastAPI | Arena AI Project
+</footer>
+
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const fileName = document.getElementById('fileName');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const loading = document.getElementById('loading');
+    const resultDiv = document.getElementById('result');
+    const outputImage = document.getElementById('outputImage');
+    const jsonOutput = document.getElementById('jsonOutput');
+
+    fileInput.onchange = () => {
+        if (fileInput.files.length > 0) {
+            fileName.textContent = fileInput.files[0].name;
+        }
+    };
+
+    uploadBtn.onclick = async () => {
+        if (fileInput.files.length === 0) {
+            alert("Please select an image first!");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+
+        loading.style.display = "block";
+        resultDiv.style.display = "none";
+        uploadBtn.disabled = true;
+
+        try {
+            const response = await fetch("/predict", {
+                method: "POST",
+                body: formData
+            });
+            const data = await response.json();
+            
+            if (data.status === "success") {
+                // Add timestamp to prevent browser caching of the result image
+                outputImage.src = data.image_url + "?t=" + new Date().getTime();
+                jsonOutput.textContent = JSON.stringify(data.predictions, null, 2);
+                resultDiv.style.display = "block";
+            } else {
+                alert("Detection failed: " + data.detail);
+            }
+        } catch (error) {
+            alert("Error connecting to the API.");
+        } finally {
+            loading.style.display = "none";
+            uploadBtn.disabled = false;
+        }
+    };
+</script>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1f840b9ee2abb2f',t:'MTc4NDc4NDIwMw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
