@@ -1,5 +1,5 @@
 # Use the full Python image which includes most system libraries by default
-FROM python:3.10
+FROM python:3.11
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
