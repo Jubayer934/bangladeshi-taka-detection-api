@@ -1,0 +1,26 @@
+{
+  "status": "success",
+  "count": 2,
+  "predictions": [
+    {
+      "denomination": "100 Taka",
+      "confidence": 0.94,
+      "bounding_box": {
+        "x1": 50.5,
+        "y1": 120.0,
+        "x2": 450.2,
+        "y2": 320.5
+      }
+    },
+    {
+      "denomination": "500 Taka",
+      "confidence": 0.88,
+      "bounding_box": {
+        "x1": 100.0,
+        "y1": 400.0,
+        "x2": 600.0,
+        "y2": 700.0
+      }
+    }
+  ]
+}

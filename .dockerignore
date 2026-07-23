@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+runs/
+dataset/
+*.zip
+.git/
+.dockerignore
+model/*.pt
+!model/best.pt
