@@ -1,29 +1,28 @@
+# Use an official Python base image
 FROM python:3.10-slim
 
 # Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-# Default port for local. Cloud providers will override this.
-ENV PORT=8000
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgl1 \
+# Install system dependencies (needed for OpenCV and Ultralytics)
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
     libglib2.0-0 \
-    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Set working directory
 WORKDIR /app
 
-# Copy and install dependencies
+# Copy requirements and install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy everything
+# Copy the rest of the application code
 COPY . .
 
-# Expose the port
+# Expose the API port
 EXPOSE 8000
 
-# Universal CMD that works locally and on Cloud
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"]
+# Command to run the application (using shell form to allow $PORT substitution)
+CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
