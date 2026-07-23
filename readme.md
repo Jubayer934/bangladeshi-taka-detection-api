@@ -1,72 +1,94 @@
-# Bangladeshi Taka Note Detection API
+# 🇧🇩 Bangladeshi Taka Note Detection API
 
-This project provides a REST API for detecting Bangladeshi Taka notes using a fine-tuned **YOLOv11** model.
+A full-stack AI application that detects Bangladeshi Taka denominations using a fine-tuned **YOLOv11** model. The project features a **FastAPI** backend, a modern **Web UI**, and is fully **Dockerized** for easy deployment.
 
-## Folder Structure
-```
+## 🚀 Features
+- **YOLOv11 Inference:** Fast and accurate detection of Taka notes.
+- **REST API:** POST endpoint for image analysis with JSON responses.
+- **Web UI:** User-friendly interface for uploading and visualizing detections.
+- **Dockerized:** One-command setup using Docker and Docker Compose.
+- **Cloud Ready:** Optimized for deployment on Render, Railway, or AWS.
+
+---
+
+## 📂 Project Structure
+```text
 taka-detection-api/
-├── model/
-│   └── best.pt          # Fine-tuned YOLOv11 weights (Phase-1)
 ├── app/
-│   └── main.py          # FastAPI application
-├── test_images/         # 5+ images for testing
-├── Dockerfile           # Docker configuration
-├── .dockerignore        # Files to exclude from Docker build
-├── requirements.txt     # Python dependencies
-├── docker-compose.yml   # Optional Compose configuration
-└── README.md            # Project documentation
+│   ├── main.py              # FastAPI Backend
+│   └── index.html           # Web Frontend (HTML/CSS/JS)
+├── model/
+│   └── best.pt              # Trained YOLOv11 weights
+├── test_images/             # Sample images for testing
+├── Dockerfile               # Container configuration
+├── docker-compose.yml       # Multi-container orchestration
+├── requirements.txt         # Python dependencies
+├── .dockerignore            # Exclude files from Docker build
+├── .gitignore               # Exclude files from GitHub
+└── README.md                # Project documentation
 ```
 
-## Setup & Installation
+---
 
-### Local Setup
-1. Clone the repository.
-2. Install dependencies:
+## 🛠️ Installation & Setup
+
+### 1. Local Setup (Without Docker)
+1. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-3. Run the API:
+2. Run the application:
    ```bash
    uvicorn app.main:app --reload
    ```
+3. Open `http://localhost:8000` in your browser.
 
-### Docker Setup
-1. Build the Docker image:
+### 2. Docker Setup (Recommended)
+1. Build and run the container:
    ```bash
-   docker build -t taka-detection-api .
+   docker compose up --build
    ```
-2. Run the container:
-   ```bash
-   docker run -p 8000:8000 taka-detection-api
-   ```
-   *Alternatively, use Docker Compose:* `docker-compose up`
+2. Access the Web UI at `http://localhost:8000`.
 
-## API Usage
+---
+
+## 🔌 API Documentation
 - **Endpoint:** `/predict`
 - **Method:** `POST`
-- **Input:** Image file (multipart/form-data)
-- **Response:** JSON
+- **Payload:** `file` (Image)
+- **Response:**
+  ```json
+  {
+    "status": "success",
+    "count": 1,
+    "predictions": [
+      {
+        "denomination": "100 Taka",
+        "confidence": 0.98,
+        "bounding_box": [x1, y1, x2, y2]
+      }
+    ],
+    "image_url": "/static/latest_result.jpg"
+  }
+  ```
 
-### Example with `curl`
-```bash
-curl -X 'POST' \
-  'http://localhost:8000/predict' \
-  -H 'accept: application/json' \
-  -H 'Content-Type: multipart/form-data' \
-  -F 'file=@your_image.jpg;type=image/jpeg'
-```
+---
 
-## Prediction Accuracy Discussion
-The model's accuracy depends on several factors:
-1. **Dataset Quality**: The variety of lighting conditions, angles, and backgrounds in the training data for Taka notes.
-2. **Model Choice**: YOLOv11n (Nano) is optimized for speed, while YOLOv11m or YOLOv11l would provide higher accuracy at the cost of inference time.
-3. **Confidence Threshold**: A threshold of 0.25 was used in this API. Increasing this reduces false positives but might miss some notes in poor lighting.
-4. **Resolution**: The API processes images at their native resolution or resizes them to the model's expected input (usually 640x640), which is generally sufficient for note detection.
+## ☁️ Cloud Deployment (Render)
+1. Push this project to GitHub.
+2. Create a new **Web Service** on Render.
+3. Connect your repository and select **Docker** as the runtime.
+4. Render will automatically use the `Dockerfile` to deploy your API.
 
-## Deployment Steps (Cloud)
-1. **Containerize:** Ensure the Docker image is working locally.
-2. **Push to Registry:** Push the image to Docker Hub or AWS ECR.
-3. **Deploy:** 
-   - On **Render/Railway**: Connect GitHub repo, select Dockerfile, and deploy.
-   - On **AWS App Runner**: Connect to ECR and deploy the container.
-   - On **GCP Cloud Run**: Use `gcloud run deploy`.
+---
+
+## 📈 Prediction Accuracy Discussion
+The model utilizes the YOLOv11 nano architecture, fine-tuned on a custom dataset of Bangladeshi Taka notes.
+- **Strengths:** High speed and accurate detection in varied lighting.
+- **Limitations:** May struggle with extremely folded or partially visible notes.
+- **Optimization:** Using `opencv-python-headless` ensures stability in server environments without graphics drivers.
+
+---
+
+## 🎓 Author
+Developed for the Arena AI Agent Mode Project.
