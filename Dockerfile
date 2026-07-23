@@ -1,5 +1,5 @@
-# Use the full Python image which includes most system libraries by default
-FROM python:3.11
+# Use the full Python image for maximum compatibility
+FROM python:3.10
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -10,16 +10,20 @@ ENV YOLO_CONFIG_DIR=/tmp
 # Set working directory
 WORKDIR /app
 
-# Copy requirements and install Python dependencies
+# Copy requirements
 COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
 
-# Copy the application code
+# 1. Install base requirements
+# 2. Force install Headless OpenCV to avoid libGL errors
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir opencv-python-headless
+
+# Copy the entire project
 COPY . .
 
-# Expose the port
+# Expose port 8000
 EXPOSE 8000
 
-# Universal CMD that works locally and on Cloud (Render/Railway)
+# Universal command for Local and Cloud
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"]

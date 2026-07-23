@@ -8,17 +8,21 @@ import os
 
 app = FastAPI(title="Bangladeshi Taka Note Detection API")
 
-# Setup folder paths
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-RESULT_DIR = "static"
+# Define base paths
+BASE_DIR = os.path.dirname(os.path.abspath(__file__)) # /app/app
+ROOT_DIR = os.path.dirname(BASE_DIR)                 # /app
+
+# Ensure static directory exists in the root
+RESULT_DIR = os.path.join(ROOT_DIR, "static")
 os.makedirs(RESULT_DIR, exist_ok=True)
 
 # Serve the static folder
 app.mount("/static", StaticFiles(directory=RESULT_DIR), name="static")
 
-# Load model
-MODEL_PATH = os.path.join(os.path.dirname(BASE_DIR), "model", "best.pt")
+# Load model from /app/model/best.pt
+MODEL_PATH = os.path.join(ROOT_DIR, "model", "best.pt")
 if not os.path.exists(MODEL_PATH):
+    print(f"Warning: {MODEL_PATH} not found, using base yolo11n.pt")
     MODEL_PATH = "yolo11n.pt"
 
 try:
@@ -28,10 +32,12 @@ except Exception as e:
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root():
-    # Return the HTML UI
+    # Find index.html in the same folder as main.py
     html_path = os.path.join(BASE_DIR, "index.html")
-    with open(html_path, "r", encoding="utf-8") as f:
-        return f.read()
+    if os.path.exists(html_path):
+        with open(html_path, "r", encoding="utf-8") as f:
+            return f.read()
+    return "<h1>API is running, but index.html was not found.</h1>"
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
@@ -42,12 +48,14 @@ async def predict(file: UploadFile = File(...)):
         contents = await file.read()
         image = Image.open(io.BytesIO(contents)).convert("RGB")
         
+        # Run inference
         results = model.predict(source=image, conf=0.25)
         
         predictions = []
         for result in results:
-            # Save visualized image
-            result.save(filename=os.path.join(RESULT_DIR, "latest_result.jpg"))
+            # Save visualized image to /app/static/latest_result.jpg
+            save_path = os.path.join(RESULT_DIR, "latest_result.jpg")
+            result.save(filename=save_path)
             
             for box in result.boxes:
                 predictions.append({
