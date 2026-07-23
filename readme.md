@@ -7,7 +7,7 @@ A full-stack AI application that detects Bangladeshi Taka denominations using a 
 - **REST API:** POST endpoint for image analysis with JSON responses.
 - **Web UI:** User-friendly interface for uploading and visualizing detections.
 - **Dockerized:** One-command setup using Docker and Docker Compose.
-- **Cloud Ready:** Optimized for deployment on Render, Railway, or AWS.
+- **Cloud Ready:** Optimized for deployment on Render.
 
 ---
 
@@ -90,5 +90,4 @@ The model utilizes the YOLOv11 nano architecture, fine-tuned on a custom dataset
 
 ---
 
-## 🎓 Author
-Developed for the Arena AI Agent Mode Project.
+URL of the project : [Taka-Detection-URL](https://taka-detection-api-1y0h.onrender.com/)
